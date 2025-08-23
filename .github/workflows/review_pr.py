@@ -1,4 +1,4 @@
-# review_pr.py (version with ngrok fix)
+# review_pr.py (version with ngrok fix AND debug print statement)
 import os
 import sys
 import requests
@@ -44,6 +44,10 @@ def get_ollama_feedback(diff, persona_config):
     
     # This header tells ngrok to skip its browser warning page.
     headers = {"ngrok-skip-browser-warning": "true"}
+    
+    # --- THIS IS THE CRUCIAL DEBUGGING LINE ---
+    # We need to see this message in the GitHub Action logs.
+    print("DEBUG: Attempting to send request with ngrok-skip-browser-warning header.")
     
     try:
         print(f"Requesting review from {persona_config['icon']}...")
