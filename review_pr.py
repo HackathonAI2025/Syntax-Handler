@@ -1,4 +1,4 @@
-# review_pr.py (version with ngrok fix AND debug print statement)
+# review_pr.py (Final version with User-Agent fix)
 import os
 import sys
 import requests
@@ -42,18 +42,18 @@ def get_ollama_feedback(diff, persona_config):
     """Queries Ollama with a specific persona and the code diff."""
     prompt = f"Please review the following code changes:\n\n```diff\n{diff}\n```"
     
-    # This header tells ngrok to skip its browser warning page.
-    headers = {"ngrok-skip-browser-warning": "true"}
-    
-    # --- THIS IS THE CRUCIAL DEBUGGING LINE ---
-    # We need to see this message in the GitHub Action logs.
-    print("DEBUG: Attempting to send request with ngrok-skip-browser-warning header.")
+    # --- FINAL FIX: ADD A BROWSER USER-AGENT ---
+    # We now send two headers to get past ngrok's security.
+    headers = {
+        "ngrok-skip-browser-warning": "true",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+    }
     
     try:
         print(f"Requesting review from {persona_config['icon']}...")
         response = requests.post(
             f"{OLLAMA_HOST}/api/generate",
-            headers=headers, # Pass the header in the request
+            headers=headers, # Pass both headers in the request
             json={
                 "model": OLLAMA_MODEL,
                 "system": persona_config["system_prompt"],
