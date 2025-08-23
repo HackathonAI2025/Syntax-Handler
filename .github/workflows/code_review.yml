@@ -3,10 +3,10 @@ name: AI Code Review Committee
 
 on:
   pull_request:
-    types: [opened, synchronize] # Run on PR creation and updates
+    types: [opened, synchronize]
 
 permissions:
-  pull-requests: write # Grant permission to write comments on PRs
+  pull-requests: write
 
 jobs:
   review:
@@ -21,14 +21,16 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
+        # This tells the runner to execute the command inside the Syntax-Handler folder
+        working-directory: ./Syntax-Handler 
         run: pip install -r requirements.txt
 
       - name: Run AI Review
+        # This is also crucial. The python command must be run from here too.
+        working-directory: ./Syntax-Handler
         env:
-          # This token is automatically provided by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          # IMPORTANT: We will set OLLAMA_HOST as a secret in GitHub
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST_URL }}
         run: python review_pr.py
