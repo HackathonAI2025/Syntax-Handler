@@ -120,6 +120,5 @@ def main():
         success_comment = "🤖 AI Review Committee: All checks passed. Looks good to me! 👍"
         post_github_comment(success_comment)
 
-
 if __name__ == "__main__":
     main()
