@@ -1,4 +1,4 @@
-# review_pr.py
+# review_pr.py (version with ngrok fix)
 import os
 import sys
 import requests
@@ -8,9 +8,6 @@ import json
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPOSITORY = os.getenv("GITHUB_REPOSITORY")
 PR_NUMBER = os.getenv("PR_NUMBER")
-
-# This URL must be accessible from your GitHub Action runner.
-# We'll use ngrok to expose our local Ollama instance.
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = "llama3:8b-instruct"
 
@@ -45,10 +42,14 @@ def get_ollama_feedback(diff, persona_config):
     """Queries Ollama with a specific persona and the code diff."""
     prompt = f"Please review the following code changes:\n\n```diff\n{diff}\n```"
     
+    # This header tells ngrok to skip its browser warning page.
+    headers = {"ngrok-skip-browser-warning": "true"}
+    
     try:
         print(f"Requesting review from {persona_config['icon']}...")
         response = requests.post(
             f"{OLLAMA_HOST}/api/generate",
+            headers=headers, # Pass the header in the request
             json={
                 "model": OLLAMA_MODEL,
                 "system": persona_config["system_prompt"],
@@ -65,7 +66,6 @@ def get_ollama_feedback(diff, persona_config):
         
         feedback = response.json().get("response", "").strip()
         
-        # Filter out "no issues found" messages to keep the final comment clean
         if "no issues found" in feedback.lower():
             print(f"{persona_config['icon']} found no issues.")
             return None
@@ -116,7 +116,6 @@ def main():
         post_github_comment(full_review_comment)
     else:
         print("All committee members reported no significant issues.")
-        # Optional: post a simple "LGTM!" comment
         success_comment = "🤖 AI Review Committee: All checks passed. Looks good to me! 👍"
         post_github_comment(success_comment)
 
