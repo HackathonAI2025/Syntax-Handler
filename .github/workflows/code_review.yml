@@ -1,0 +1,34 @@
+# .github/workflows/code_review.yml
+name: AI Code Review Committee
+
+on:
+  pull_request:
+    types: [opened, synchronize] # Run on PR creation and updates
+
+permissions:
+  pull-requests: write # Grant permission to write comments on PRs
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AI Review
+        env:
+          # This token is automatically provided by GitHub
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          # IMPORTANT: We will set OLLAMA_HOST as a secret in GitHub
+          OLLAMA_HOST: ${{ secrets.OLLAMA_HOST_URL }}
+        run: python review_pr.py
