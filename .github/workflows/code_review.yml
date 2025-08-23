@@ -15,16 +15,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # --- Step 1: DEBUGGING - See the file structure ---
+      # This step will print out all files and folders so we can be 100% sure of the path.
+      - name: List files in the repository
+        run: ls -R
+
+      # --- Step 2: Setup Python ---
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
+      # --- Step 3: Install dependencies inside the correct folder ---
       - name: Install dependencies
-        # This tells the runner to execute the command inside the Syntax-Handler folder
-        working-directory: ./Syntax-Handler 
+        # This tells the runner to first cd into 'Syntax-Handler'
+        working-directory: ./Syntax-Handler
         run: pip install -r requirements.txt
 
+      # --- Step 4: Run the AI review script from the correct folder ---
       - name: Run AI Review
         # This is also crucial. The python command must be run from here too.
         working-directory: ./Syntax-Handler
